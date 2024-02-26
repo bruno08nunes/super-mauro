@@ -21,9 +21,10 @@ export const jump = (e) => {
 };
 
 // Game
-let rAF,
-    isGameOver = false,
-    count = 0;
+let rAF;
+let isGameOver = false;
+let count = 0;
+let maxCount = localStorage.getItem("SMW-maxCount") ?? 0;
 export const game = () => {
     const pipeHeight = matchMedia("(width <= 50em)").matches ? 70 : 100;
     const pipeIdealPosition = matchMedia("(width <= 50em)").matches ? 100 : 120;
@@ -35,8 +36,13 @@ export const game = () => {
     if (!isGameOver && rAF % 2 === 0) {
         count++;
     }
-    const divCount = document.querySelector(".count");
-    divCount.textContent = count;
+    const divCurrentCount = document.querySelector(".current-count");
+    divCurrentCount.textContent = count;
+    const divMaxCount = document.querySelector(".max-count");
+    if (count > maxCount) {
+        maxCount = count;
+    }
+    divMaxCount.textContent = maxCount;
 
     const MarioIsNotOverPipe =
         pipePosition <= pipeIdealPosition && pipePosition > 0;
@@ -52,23 +58,25 @@ export const game = () => {
 
         const divGameOver = document.querySelector(".game-over");
         divGameOver.style.display = "flex";
-        
+
         isGameOver = true;
-        
+
+        localStorage.setItem("SMW-maxCount", maxCount);
+
         cancelAnimationFrame(rAF);
     }
-    
+
     rAF = requestAnimationFrame(game);
 };
 
 export const resetGame = () => {
     pipe.style.animation = "none";
-    
+
     pipe.classList.remove("paused");
     mario.classList.remove("paused");
     mario.classList.remove("mario-game-over");
     resetJump();
-    
+
     const divGameOver = document.querySelector(".game-over");
     divGameOver.style.display = "none";
 
